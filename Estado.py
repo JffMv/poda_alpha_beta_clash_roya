@@ -26,16 +26,17 @@ class Estado:
 
     def heuristicEval(self):
         heuristicFather = self.father.getHeuristic() if not self.initial else 0
-        self.heuristic = (heuristicFather + self.carta) * (self.daño - self.elixir)
+        self.heuristic = heuristicFather + abs((self.carta - self.elixir) * self.daño)
         self.value = int(self.heuristic)
 
     def createNextStep(self):
-        aux = ["MARINA", "AEREA", "TERRESTRE"]
-        firt = Estado(carta=aux[random.randint(0, 2)], father=self, elixir=5, daño=random.randint(5, 20))
-        second = Estado(carta=aux[random.randint(0, 2)], father=self, elixir=3, daño=random.randint(5, 20))
-        thirt = Estado(carta=aux[random.randint(0, 2)], father=self, elixir=7, daño=random.randint(5, 20))
-        fourth = Estado(carta=aux[random.randint(0, 2)], father=self, elixir=2, daño=random.randint(5, 20))
-        fiveth = Estado(carta=aux[random.randint(0, 2)], father=self, elixir=1, daño=random.randint(5, 20))
+        aux = ["MAGICA", "AEREA", "TERRESTRE", "TROPA"]
+
+        firt = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
+        second = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
+        thirt = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
+        fourth = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
+        fiveth = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
         self.neighbors = [firt, second, thirt, fourth, fiveth]
 
     def actionResults(self):
@@ -74,12 +75,15 @@ class Estado:
     """setters"""
 
     def setValueCart(self, cart):
-        if (str(cart).upper() == "TERRESTRE"):
-            self.carta = 1;
-        elif (str(cart).upper() == "AEREA"):
+        if (str(cart).upper() == "TROPA"):
+            self.carta = 1
+        elif (str(cart).upper() == "TERRESTRE"):
             self.carta = 2;
-        elif (str(cart).upper() == "MARINA"):
+        elif (str(cart).upper() == "AEREA"):
             self.carta = 3;
+        elif (str(cart).upper() == "MAGICA"):
+            self.carta = 4;
+
 
     def setValue(self, value):
         self.value = value
