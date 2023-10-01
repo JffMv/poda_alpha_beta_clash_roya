@@ -1,10 +1,13 @@
 import math
 import random
+import queue
+from copy import copy
+
+from Carta import Carta
 
 
 class Estado:
     elixir = 0
-    carta = 0
     value = 0
     alpha = -math.inf
     beta = math.inf
@@ -13,34 +16,75 @@ class Estado:
     father = 0
     heuristic = 0
     daño = 0
-    neighbors = []
+    cardsForPlay = []
+    maso = queue.Queue()
+    neighbors_states = []
 
-    def __init__(self, carta="terrestre", father=0, initial=False, terminal=False, elixir=0, daño=0):
+    def __init__(self, carta, father=0, initial=False, terminal=False, cardsForPlay=[], maso=queue.Queue()):
+        self.carta = carta
         self.father = father if not initial else None
-        self.elixir = elixir
-        self.setValueCart(carta)
+        self.elixir = carta.getElixir()
         self.initial = initial
-        self.daño = daño
+        self.daño = carta.getDamageBase()
         self.terminal = terminal
         self.heuristicEval()
+        self.cardsForPlay = cardsForPlay
+        self.maso = maso
 
     def heuristicEval(self):
         heuristicFather = self.father.getHeuristic() if not self.initial else 0
-        self.heuristic = heuristicFather + abs((self.carta - self.elixir) * self.daño)
+        self.heuristic = heuristicFather + abs((self.carta.getDamageCard() - self.elixir) * self.daño)
         self.value = int(self.heuristic)
 
-    def createNextStep(self):
-        aux = ["MAGICA", "AEREA", "TERRESTRE", "TROPA"]
+    "la lista de neighbors debe llegar 4 elementos"
 
-        firt = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
-        second = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
-        thirt = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
-        fourth = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
-        fiveth = Estado(carta=aux[random.randint(0, 3)], father=self, elixir=random.randint(1, 9), daño=random.randint(750, 1800))
-        self.neighbors = [firt, second, thirt, fourth, fiveth]
+    def createNextStep(self, state):
+
+        card = copy(state.getCarta())
+        setPlay = copy(state.getCardsForPlay())
+        maso = copy(state.getMaso())
+        print("maso")
+        for i in list(maso.queue):
+            print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
+        print("cartas par jugar")
+        for i in state.getCardsForPlay():
+            print(i.getName(),"--",i.getElixir(),"--",i.getDamageCard(),"--",i.getDamageBase())
+        print("carta jugada")
+        print(card.getName(),"--",card.getElixir(),"--",card.getDamageCard(),"--",card.getDamageBase())
+
+        for i in setPlay:
+            if card.getDamageCard() == i.getDamageCard() and card.getName() == i.getName() and card.getElixir() == i.getElixir() and card.getDamageBase() == i.getDamageBase():
+                setPlay.remove(i)
+
+        if (len(setPlay) == 4):
+            setPlay.append(maso.get())
+            maso.put(card)
+            state.generateStates(state, setPlay, maso)
+            print ("actualizacion")
+            print("maso")
+            for i in list(maso.queue):
+                print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
+            print("cartas par jugar")
+            for i in state.getCardsForPlay():
+                print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
+
+        else:
+            raise ValueError("no entro a la lista de vecinos")
+
+    def generateStates(self, state=None, setPlay=None, maso=None):
+        if (state != None or setPlay != None or maso != None):
+            listNeigbors = []
+            for i in setPlay:
+                listNeigbors.append(Estado(carta=i, father=state, cardsForPlay=setPlay, maso=maso,initial=False))
+            state.setNeighborsState(listNeigbors)
+        else:
+            self.neighbors_states = []
+            for i in self.cardsForPlay:
+                self.neighbors_states.append(
+                    Estado(carta=i, father=self, cardsForPlay=self.cardsForPlay, maso=self.maso))
 
     def actionResults(self):
-        return self.neighbors
+        return self.neighbors_states
 
     """Getters"""
 
@@ -64,26 +108,23 @@ class Estado:
 
     def isInitial(self):
         return self.initial
+
     def isTerminal(self):
         return self.terminal
 
     def getFather(self):
         return self.father
+
     def getDamage(self):
         return self.daño
 
+    def getMaso(self):
+        return self.maso
+
+    def getCardsForPlay(self):
+        return self.cardsForPlay
+
     """setters"""
-
-    def setValueCart(self, cart):
-        if (str(cart).upper() == "TROPA"):
-            self.carta = 1
-        elif (str(cart).upper() == "TERRESTRE"):
-            self.carta = 2;
-        elif (str(cart).upper() == "AEREA"):
-            self.carta = 3;
-        elif (str(cart).upper() == "MAGICA"):
-            self.carta = 4;
-
 
     def setValue(self, value):
         self.value = value
@@ -96,3 +137,8 @@ class Estado:
 
     def setBeta(self, beta):
         self.beta = beta
+
+    def setNeighborsState(self, listNeighbors):
+        self.neighbors_states = listNeighbors
+
+

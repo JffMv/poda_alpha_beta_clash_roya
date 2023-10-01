@@ -3,21 +3,22 @@ from Estado import Estado
 class PodaAlphaBeta:
     list_states = []
     state = 0
+    number = 0
     def __init__(self):
 
         pass
     def minValue(self, TState, number_d, number_alpha, number_beta):
-        if (number_d == 0 or TState.isTerminal()):
-
-            return TState.getHeuristic()
+        print(number_d, " mirameeeeeeee")
+        if (number_d == 0 or TState.isTerminal()): return TState.getHeuristic()
 
         #TState.setValue(math.inf)
-        TState.createNextStep() # unique for this case
+        #if (number_d != self.state ):
+        TState.generateStates() # unique for this case
+
         value = math.inf
-
-
-        for state in TState.actionResults():
-
+        nextStates =TState.actionResults()
+        for state in nextStates:
+            state.createNextStep(state)
             number = self.maxValue(state, number_d - 1, number_alpha, number_beta)
             value = min(value, number)
             number_beta = min(value, number_beta)
@@ -29,20 +30,26 @@ class PodaAlphaBeta:
 
 
     def maxValue(self, TState, number_d, number_alpha, number_beta):
+        print(number_d, " mirameeeeeeee _ mazx")
         if (number_d == 0 or TState.isTerminal()): return TState.getHeuristic()
 
         #TState.setValue(-math.inf)
-        TState.createNextStep()  # unique for this case
-        value = -math.inf
+        #if (number_d != self.state ):
+        TState.generateStates() # unique for this case
 
-        for state in TState.actionResults():
-            if (self.state - 1 == number_d-1): self.list_states.append([state, value])
+        value = -math.inf
+        nextStates = TState.actionResults()
+        for state in nextStates:
+            if (self.state - 1 == number_d - 1):
+                self.list_states.append([state, value])
+                self.number += 1
+            state.createNextStep(state)
             number = self.minValue(state, number_d - 1, number_alpha, number_beta)
             value = max(value, number)
             number_alpha = max(value, number_alpha)
 
-            if (number_alpha >= number_beta): break
-
+            if (number_alpha >= number_beta):
+                break
         return value
 
 
@@ -60,7 +67,7 @@ class PodaAlphaBeta:
             #print(state[0].getCarta(), "carta guardada")
             #print(state[0].getDamage(), "daño guardado")
 
-            real_answer = (state[0].getCarta(), " whith damage: ", state[0].getDamage()) if state[1]== value else real_answer
+            real_answer = (state[0].getCarta(), " whith damage: ", state[0].getDamage()) if state[1] == value else real_answer
         print(len(self.list_states))
         return real_answer
 
