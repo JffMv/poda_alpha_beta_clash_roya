@@ -40,13 +40,14 @@ class PodaAlphaBeta:
         value = -math.inf
         nextStates = TState.actionResults()
         for state in nextStates:
-            if (self.state - 1 == number_d - 1):
-                self.list_states.append([state, value])
-                self.number += 1
+
             state.createNextStep(state)
             number = self.minValue(state, number_d - 1, number_alpha, number_beta)
             value = max(value, number)
             number_alpha = max(value, number_alpha)
+            if (self.state  == number_d ):
+                self.list_states.append([state, value])
+                self.number += 1
 
             if (number_alpha >= number_beta):
                 break
@@ -64,10 +65,14 @@ class PodaAlphaBeta:
             print(i.getDamage(), "daño")
 
         for state in self.list_states:
+            print(state[1], "guaradado")
+
             #print(state[0].getCarta(), "carta guardada")
             #print(state[0].getDamage(), "daño guardado")
 
             real_answer = (state[0].getCarta(), " whith damage: ", state[0].getDamage()) if state[1] == value else real_answer
+        print(value, "value")
+        print(self.number)
         print(len(self.list_states))
         return real_answer
 
