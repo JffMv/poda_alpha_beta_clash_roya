@@ -2,6 +2,7 @@ import math
 import random
 import queue
 from copy import copy
+from copy import deepcopy
 
 from Carta import Carta
 
@@ -37,51 +38,53 @@ class Estado:
         self.value = int(self.heuristic)
 
     "la lista de neighbors debe llegar 4 elementos"
+    def doCopy(self, maso):
+        aux = queue.Queue()
+        for  i in list(maso.queue):
+            aux.put(i)
+        return aux
+
 
     def createNextStep(self, state):
-
-        card = copy(state.getCarta())
-        setPlay = copy(state.getCardsForPlay())
-        maso = copy(state.getMaso())
-        print("maso")
-        for i in list(maso.queue):
-            print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
-        print("cartas par jugar")
-        for i in state.getCardsForPlay():
-            print(i.getName(),"--",i.getElixir(),"--",i.getDamageCard(),"--",i.getDamageBase())
-        print("carta jugada")
-        print(card.getName(),"--",card.getElixir(),"--",card.getDamageCard(),"--",card.getDamageBase())
-
-        for i in setPlay:
-            if card.getDamageCard() == i.getDamageCard() and card.getName() == i.getName() and card.getElixir() == i.getElixir() and card.getDamageBase() == i.getDamageBase():
-                setPlay.remove(i)
-
-        if (len(setPlay) == 4):
-            setPlay.append(maso.get())
-            maso.put(card)
-            state.generateStates(state, setPlay, maso)
-            print ("actualizacion")
+        if(not state.isInitial()):
+            card = deepcopy(state.getCarta())
+            setPlay = deepcopy(state.getCardsForPlay())
+            maso = state.doCopy(state.getMaso())
             print("maso")
             for i in list(maso.queue):
                 print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
             print("cartas par jugar")
-            for i in state.getCardsForPlay():
-                print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
-
-        else:
-            raise ValueError("no entro a la lista de vecinos")
-
-    def generateStates(self, state=None, setPlay=None, maso=None):
-        if (state != None or setPlay != None or maso != None):
-            listNeigbors = []
             for i in setPlay:
-                listNeigbors.append(Estado(carta=i, father=state, cardsForPlay=setPlay, maso=maso,initial=False))
-            state.setNeighborsState(listNeigbors)
-        else:
-            self.neighbors_states = []
-            for i in self.cardsForPlay:
-                self.neighbors_states.append(
-                    Estado(carta=i, father=self, cardsForPlay=self.cardsForPlay, maso=self.maso))
+                print(i.getName(),"--",i.getElixir(),"--",i.getDamageCard(),"--",i.getDamageBase())
+            print("carta jugada")
+            print(card.getName(),"--",card.getElixir(),"--",card.getDamageCard(),"--",card.getDamageBase())
+
+            for i in setPlay:
+                if card.getDamageCard() == i.getDamageCard() and card.getName() == i.getName() and card.getElixir() == i.getElixir() and card.getDamageBase() == i.getDamageBase():
+                    setPlay.remove(i)
+            if (len(setPlay) == 4):
+                setPlay.append(maso.get())
+                maso.put(card)
+                state.setCartasForPlay(setPlay)
+                state.setMaso(maso)
+                print ("actualizacion")
+                print("maso")
+                for i in list(maso.queue):
+                    print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
+                print("cartas para jugar")
+                for i in setPlay:
+                    print(i.getName(), "--", i.getElixir(), "--", i.getDamageCard(), "--", i.getDamageBase())
+
+            else:
+                raise ValueError("no entro a la lista de vecinos")
+
+    def generateStates(self):
+        self.neighbors_states = []
+        for i in self.cardsForPlay:
+            estado_aux = Estado(carta=i, father=self, cardsForPlay=copy(self.cardsForPlay), maso=self.doCopy(self.maso))
+            estado_aux.createNextStep(estado_aux)
+            self.neighbors_states.append(estado_aux)
+
 
     def actionResults(self):
         return self.neighbors_states
@@ -140,5 +143,10 @@ class Estado:
 
     def setNeighborsState(self, listNeighbors):
         self.neighbors_states = listNeighbors
+    def setCartasForPlay(self,lista_1):
+        self.cardsForPlay = lista_1
+
+    def setMaso(self, maso_1):
+        self.maso = maso_1
 
 
