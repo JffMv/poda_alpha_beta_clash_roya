@@ -67,18 +67,18 @@ class PodaAlphaBeta:
         self.state = number_d
         value = self.maxValue(TState, number_d, -math.inf, math.inf)
         posibles_answers = TState.actionResults()
+        results = []
         for i in posibles_answers:
-            print(i.getCarta(), "carta")
-            print(i.getDamage(), "daño")
+            carta2 = i.getCarta()
+            print("Name of Card: ", carta2.getName(), "whith damabe base: ", carta2.getDamageBase(),"whith damabe of card: ", carta2.getDamageCard(),"whith elixir: ", carta2.getElixir())
 
         for state in self.list_states:
             print(state[1], "guaradado")
+            if(state[1] == value):
+                carta =state[0].getCarta()
+                real_answer = "Name of Card: ", carta.getName(), "whith damabe base: ", carta.getDamageBase(),"whith damabe of card: ", carta.getDamageCard(),"whith elixir: ", carta.getElixir()," whith damage in state: ", state[0].getDamage()
+                break
 
-            # print(state[0].getCarta(), "carta guardada")
-            # print(state[0].getDamage(), "daño guardado")
-
-            real_answer = (state[0].getCarta(), " whith damage: ", state[0].getDamage()) if state[
-                                                                                                1] == value else real_answer
         print(value, "value")
         print(self.number)
         print(len(self.list_states))
