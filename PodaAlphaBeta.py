@@ -80,6 +80,6 @@ class PodaAlphaBeta:
                 break
 
         print(value, "value")
-        print(self.number)
-        print(len(self.list_states))
+        print(self.number , "Times into to save states")
+        print(len(self.list_states), "Number the states save in the add implementation of code")
         return real_answer
